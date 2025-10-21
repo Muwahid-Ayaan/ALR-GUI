@@ -109,7 +109,7 @@ void Window::drawControls(QPainter *Painter) {
   Painter->setRenderHint(QPainter::Antialiasing);
   Painter->setPen(QPen(Qt::black, 5));
   // Painter->setBrush(QBrush(Qt::black));
-  Painter->setBrush(Qt::NoBrush);
+  Painter->setBrush(Qt::black);
   QRect rectS(Painter->viewport().width() * (3.0 / 4.0), Painter->viewport().height() / 2, 150,
               150);
   Painter->drawRoundedRect(rectS, 20, 20);
