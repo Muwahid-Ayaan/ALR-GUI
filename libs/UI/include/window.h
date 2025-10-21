@@ -19,6 +19,7 @@ class Window : public QWidget {
 
  private:
   QSet<int> keys;
+  void drawBackGround(QPainter *Painter);
   void GrayOut(QPainter *Painter, QRect rect);
   void ShowPressed(QPainter *Painter);
   void TeamName(QPainter *Painter);

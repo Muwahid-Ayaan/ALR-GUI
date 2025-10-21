@@ -6,8 +6,8 @@ namespace UI {
 
 QLinearGradient DarkGradient(const QRect &rect) {
   QLinearGradient grad(rect.topLeft(), rect.bottomRight());
-  grad.setColorAt(0.0, QColor(18, 22, 28)); 
-  grad.setColorAt(1.0, QColor(8, 10, 15));  
+  grad.setColorAt(0.0, QColor(26, 11, 46));  // #1A0B2E deep violet top
+  grad.setColorAt(1.0, QColor(46, 8, 84));   // #2E0854 darker royal purple bottom
   return grad;
 }
 
@@ -16,17 +16,19 @@ void Window::drawBackGround(QPainter *Painter) {
 
   QRect rect(0, 0, Painter->viewport().width(), Painter->viewport().height());
 
+  // Deep royal-purple gradient background
   QLinearGradient grad(rect.topLeft(), rect.bottomRight());
-  grad.setColorAt(0.0, QColor(10, 40, 50));
-  grad.setColorAt(0.5, QColor(0, 130, 150));
-  grad.setColorAt(1.0, QColor(5, 20, 30));
+  grad.setColorAt(0.0, QColor(65, 0, 110));  // Rich violet top
+  grad.setColorAt(0.5, QColor(90, 0, 140));  // Mid purple hue
+  grad.setColorAt(1.0, QColor(20, 0, 40));   // Dark plum base
 
   Painter->setBrush(grad);
   Painter->setPen(Qt::NoPen);
   Painter->drawRect(rect);
 
-  QRadialGradient glow(rect.center(), rect.width() / 1.4);
-  glow.setColorAt(0.0, QColor(0, 200, 255, 40));
+  // Optional glowing effect overlay
+  QRadialGradient glow(rect.center(), rect.width() / 1.2);
+  glow.setColorAt(0.0, QColor(180, 0, 255, 60));  // Soft magenta glow
   glow.setColorAt(1.0, QColor(0, 0, 0, 0));
 
   Painter->setBrush(glow);
@@ -44,106 +46,101 @@ void Window::drawGUI(QPainter *Painter, QSet<int> keys) {
   CameraView(Painter);
   CurrentTask(Painter);
 }
+
 void Window::TeamName(QPainter *Painter) {
   Painter->setRenderHint(QPainter::Antialiasing);
 
-  int w = Painter->viewport().width() / 2 - 85;
+  int w = Painter->viewport().width() / 2 - 75;
   int h = 75;
-  int margin = 5;  
 
-  QRect rect(margin, margin, w, h);
-
+  QRect rect(0, 0, w, h);
   QPainterPath path;
   int r = h / 2;
 
-  path.moveTo(rect.left(), rect.top());
-  path.lineTo(rect.right() - r, rect.top());
-  path.quadTo(rect.right(), rect.center().y(), rect.right() - r, rect.bottom());
-  path.lineTo(rect.left(), rect.bottom());
+  path.moveTo(0, 0);
+  path.lineTo(w - r, 0);
+  path.quadTo(w, h / 2, w - r, h);
+  path.lineTo(0, h);
   path.closeSubpath();
 
-  Painter->setBrush(Qt::NoBrush);
-  Painter->setPen(QPen(DarkGradient(rect), 5));
+  Painter->setBrush(DarkGradient(rect));
+  Painter->setPen(Qt::NoPen);
   Painter->drawPath(path);
 
-  PrettyPrinting(Painter, "Team A", rect, 0, QColor("#00E0FF"));
+  PrettyPrinting(Painter, "Team A", rect, 0, QColor("#C77DFF"));  // neon purple accent
 }
 
 void Window::Mode(QPainter *Painter) {
   Painter->setRenderHint(QPainter::Antialiasing);
 
   int viewW = Painter->viewport().width();
-  int w = viewW / 2 - 110;
+  int w = viewW / 2 - 100;
   int h = 75;
-  int margin = 5;
 
-  QRect rect(viewW / 2 + 100, margin, w, h);
+  QRect rect(viewW / 2 + 100, 0, w, h);
 
   QPainterPath path;
   int r = h / 2;
 
   path.moveTo(rect.right(), rect.top());
   path.lineTo(rect.left() + r, rect.top());
-  path.quadTo(rect.left(), rect.center().y(), rect.left() + r, rect.bottom());
+  path.quadTo(rect.left(), rect.top() + h / 2, rect.left() + r, rect.bottom());
   path.lineTo(rect.right(), rect.bottom());
   path.closeSubpath();
 
-  Painter->setBrush(Qt::NoBrush);
-  Painter->setPen(QPen(DarkGradient(rect), 5));
+  Painter->setBrush(DarkGradient(rect));
+  Painter->setPen(Qt::NoPen);
   Painter->drawPath(path);
 
-  PrettyPrinting(Painter, "Manual", rect, 0, QColor("#00E0FF"));
+  PrettyPrinting(Painter, "Manual", rect, 0, QColor("#C77DFF"));
 }
 
 void Window::CurrentTask(QPainter *Painter) {
   Painter->setRenderHint(QPainter::Antialiasing);
 
   int viewH = Painter->viewport().height();
-  int w = Painter->viewport().width() / 2 - 85;
+  int w = Painter->viewport().width() / 2 - 100;
   int h = 75;
-  int margin = 5;  
 
-  QRect rect(margin, viewH - h - margin, w, h);
-
+  QRect rect(0, viewH - h, w, h);
   QPainterPath path;
   int r = h / 2;
 
-  path.moveTo(rect.left(), rect.top());
-  path.lineTo(rect.right() - r, rect.top());
-  path.quadTo(rect.right(), rect.center().y(), rect.right() - r, rect.bottom());
-  path.lineTo(rect.left(), rect.bottom());
+  // Flat top, curved bottom-right
+  path.moveTo(0, rect.top());
+  path.lineTo(w - r, rect.top());
+  path.quadTo(w, rect.top() + h / 2, w - r, rect.bottom());
+  path.lineTo(0, rect.bottom());
   path.closeSubpath();
 
-  Painter->setBrush(Qt::NoBrush);
-  Painter->setPen(QPen(DarkGradient(rect), 5));
+  Painter->setBrush(DarkGradient(rect));
+  Painter->setPen(Qt::NoPen);
   Painter->drawPath(path);
 
-  PrettyPrinting(Painter, "Line Following", rect, 0, QColor("#00E0FF"));
+  PrettyPrinting(Painter, "Line Following", rect, 0, QColor("#C77DFF"));
 }
 
 void Window::CameraView(QPainter *Painter) {
   Painter->setRenderHint(QPainter::Antialiasing);
   Painter->setPen(QPen(Qt::black, 5));
-  Painter->setBrush(QColor(13, 17, 23));  
+  Painter->setBrush(QColor(20, 6, 32));  // deep cosmic purple matte
   QRect rectCamera(-50, 146, Painter->viewport().width() * 0.5, 700);
   Painter->drawRoundedRect(rectCamera, 40, 40);
 }
 
 void Window::drawControls(QPainter *Painter) {
   Painter->setRenderHint(QPainter::Antialiasing);
+  Painter->setPen(QPen(QColor("#C77DFF"), 2));  // glowing violet outline
 
   auto drawKey = [&](QRect rect, const QString &text) {
     QLinearGradient grad(rect.topLeft(), rect.bottomRight());
-    grad.setColorAt(0.0, QColor(25, 25, 25));
-    grad.setColorAt(1.0, QColor(45, 45, 45));
-    Painter->setBrush(Qt::NoBrush);
-    Painter->setPen(QPen(DarkGradient(rect), 5));
-
+    grad.setColorAt(0.0, QColor(35, 15, 60));
+    grad.setColorAt(1.0, QColor(60, 20, 90));
+    Painter->setBrush(grad);
     Painter->drawRoundedRect(rect, 20, 20);
-    PrettyPrinting(Painter, text.toStdString(), rect, 0, QColor("#00E0FF"));
+    PrettyPrinting(Painter, text.toStdString(), rect, 0, QColor("#EAD6FF"));
   };
 
-  Painter->setPen(QPen(QColor("#00E0FF"), 2));
   int width = Painter->viewport().width();
   int height = Painter->viewport().height();
 
@@ -158,8 +155,8 @@ void Window::drawControls(QPainter *Painter) {
 
 void Window::GrayOut(QPainter *Painter, QRect rect) {
   QRadialGradient glow(rect.center(), rect.width() / 2);
-  glow.setColorAt(0.0, QColor(0, 224, 255, 180));
-  glow.setColorAt(1.0, QColor(0, 224, 255, 0));
+  glow.setColorAt(0.0, QColor(199, 125, 255, 180));  // inner glow bright purple
+  glow.setColorAt(1.0, QColor(157, 78, 221, 0));     // fades to transparent
   Painter->setBrush(glow);
   Painter->setPen(Qt::NoPen);
   Painter->drawRoundedRect(rect, 20, 20);
@@ -173,7 +170,6 @@ void Window::ShowPressed(QPainter *Painter) {
         rect = QRect(Painter->viewport().width() * (3.0 / 4.0),
                      Painter->viewport().height() / 2 - 200, 150, 150);
         break;
-
       case Qt::Key_S:
         rect = QRect(Painter->viewport().width() * (3.0 / 4.0), Painter->viewport().height() / 2,
                      150, 150);
