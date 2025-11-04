@@ -8,7 +8,7 @@ target_link_libraries(VisualsLib PUBLIC
     Qt5::Gui
     
 )
-
+    
 target_include_directories(VisualsLib PUBLIC include)
 
 

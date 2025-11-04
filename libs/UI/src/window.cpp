@@ -4,14 +4,14 @@
 
 namespace UI {
 
-QLinearGradient DarkGradient(const QRect &rect) {
+QLinearGradient DarkGradient(const QRect& rect) {
   QLinearGradient grad(rect.topLeft(), rect.bottomRight());
-  grad.setColorAt(0.0, QColor(18, 22, 28)); 
-  grad.setColorAt(1.0, QColor(8, 10, 15));  
+  grad.setColorAt(0.0, QColor(18, 22, 28));
+  grad.setColorAt(1.0, QColor(8, 10, 15));
   return grad;
 }
 
-void Window::drawBackGround(QPainter *Painter) {
+void Window::drawBackGround(QPainter* Painter) {
   Painter->setRenderHint(QPainter::Antialiasing);
 
   QRect rect(0, 0, Painter->viewport().width(), Painter->viewport().height());
@@ -28,28 +28,41 @@ void Window::drawBackGround(QPainter *Painter) {
   QRadialGradient glow(rect.center(), rect.width() / 1.4);
   glow.setColorAt(0.0, QColor(0, 200, 255, 40));
   glow.setColorAt(1.0, QColor(0, 0, 0, 0));
-
   Painter->setBrush(glow);
   Painter->setPen(Qt::NoPen);
   Painter->drawRect(rect);
+  QPixmap texture(
+      "/home/stellar/Documents/ALR GUI/libs/UI/6025824.jpg");  // replace with correct path
+  if (!texture.isNull()) {
+    QPixmap scaledTexture =
+        texture.scaled(rect.size(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+
+    QPoint topLeft = rect.center() - QPoint(scaledTexture.width() / 2, scaledTexture.height() / 2);
+
+    Painter->drawPixmap(topLeft, scaledTexture);
+  }
 }
 
-void Window::drawGUI(QPainter *Painter, QSet<int> keys) {
+void Window::drawGUI(QPainter* Painter, QSet<int> keys, std::vector<uint8_t> jpegBytes,
+                     std::string Mode,std::string State) {
+  this->jpegBytes = jpegBytes;
   this->keys = keys;
+  this->Mode_ = Mode;
+  this-> State = State;
   drawBackGround(Painter);
   TeamName(Painter);
-  Mode(Painter);
+  this->Mode(Painter);
   drawControls(Painter);
   ShowPressed(Painter);
   CameraView(Painter);
   CurrentTask(Painter);
 }
-void Window::TeamName(QPainter *Painter) {
+void Window::TeamName(QPainter* Painter) {
   Painter->setRenderHint(QPainter::Antialiasing);
 
   int w = Painter->viewport().width() / 2 - 85;
   int h = 75;
-  int margin = 5;  
+  int margin = 5;
 
   QRect rect(margin, margin, w, h);
 
@@ -69,7 +82,7 @@ void Window::TeamName(QPainter *Painter) {
   PrettyPrinting(Painter, "Team A", rect, 0, QColor("#00E0FF"));
 }
 
-void Window::Mode(QPainter *Painter) {
+void Window::Mode(QPainter* Painter) {
   Painter->setRenderHint(QPainter::Antialiasing);
 
   int viewW = Painter->viewport().width();
@@ -92,16 +105,16 @@ void Window::Mode(QPainter *Painter) {
   Painter->setPen(QPen(DarkGradient(rect), 5));
   Painter->drawPath(path);
 
-  PrettyPrinting(Painter, "Manual", rect, 0, QColor("#00E0FF"));
+  PrettyPrinting(Painter, Mode_, rect, 0, QColor("#00E0FF"));
 }
 
-void Window::CurrentTask(QPainter *Painter) {
+void Window::CurrentTask(QPainter* Painter) {
   Painter->setRenderHint(QPainter::Antialiasing);
 
   int viewH = Painter->viewport().height();
   int w = Painter->viewport().width() / 2 - 85;
   int h = 75;
-  int margin = 5;  
+  int margin = 5;
 
   QRect rect(margin, viewH - h - margin, w, h);
 
@@ -118,21 +131,34 @@ void Window::CurrentTask(QPainter *Painter) {
   Painter->setPen(QPen(DarkGradient(rect), 5));
   Painter->drawPath(path);
 
-  PrettyPrinting(Painter, "Line Following", rect, 0, QColor("#00E0FF"));
+  PrettyPrinting(Painter, State, rect, 0, QColor("#00E0FF"));
 }
 
-void Window::CameraView(QPainter *Painter) {
+void Window::CameraView(QPainter* Painter) {
   Painter->setRenderHint(QPainter::Antialiasing);
+
+  // Draw camera border
   Painter->setPen(QPen(Qt::black, 5));
-  Painter->setBrush(QColor(13, 17, 23));  
+  Painter->setBrush(QColor(13, 17, 23));
   QRect rectCamera(-50, 146, Painter->viewport().width() * 0.5, 700);
   Painter->drawRoundedRect(rectCamera, 40, 40);
+
+  // Draw latest frame if available
+  if (!jpegBytes.empty()) {
+    currentFrame.loadFromData(jpegBytes.data(), jpegBytes.size(), "JPEG");
+  }
+
+  if (!currentFrame.isNull()) {
+    QRect targetRect(rectCamera.left() + 10, rectCamera.top() + 10, rectCamera.width() - 20,
+                     rectCamera.height() - 20);
+    Painter->drawImage(targetRect, currentFrame);
+  }
 }
 
-void Window::drawControls(QPainter *Painter) {
+void Window::drawControls(QPainter* Painter) {
   Painter->setRenderHint(QPainter::Antialiasing);
 
-  auto drawKey = [&](QRect rect, const QString &text) {
+  auto drawKey = [&](QRect rect, const QString& text) {
     QLinearGradient grad(rect.topLeft(), rect.bottomRight());
     grad.setColorAt(0.0, QColor(25, 25, 25));
     grad.setColorAt(1.0, QColor(45, 45, 45));
@@ -156,7 +182,7 @@ void Window::drawControls(QPainter *Painter) {
   drawKey(QRect(width * 3.0 / 4.0 + 200 + 24, height / 2 + 250, 100, 100), "C");
 }
 
-void Window::GrayOut(QPainter *Painter, QRect rect) {
+void Window::GrayOut(QPainter* Painter, QRect rect) {
   QRadialGradient glow(rect.center(), rect.width() / 2);
   glow.setColorAt(0.0, QColor(0, 224, 255, 180));
   glow.setColorAt(1.0, QColor(0, 224, 255, 0));
@@ -165,7 +191,7 @@ void Window::GrayOut(QPainter *Painter, QRect rect) {
   Painter->drawRoundedRect(rect, 20, 20);
 }
 
-void Window::ShowPressed(QPainter *Painter) {
+void Window::ShowPressed(QPainter* Painter) {
   QRect rect;
   for (int key : keys) {
     switch (key) {
@@ -202,7 +228,7 @@ void Window::ShowPressed(QPainter *Painter) {
   }
 }
 
-void Window::PrettyPrinting(QPainter *Painter, std::string Text, QRect rect, int translation,
+void Window::PrettyPrinting(QPainter* Painter, std::string Text, QRect rect, int translation,
                             QColor Color) {
   Painter->save();
   Painter->translate(0, translation);

@@ -1,17 +1,15 @@
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 file(GLOB_RECURSE HEADERS "include/*.h")
 
-add_library(Game ${SOURCES} ${HEADERS})
-target_link_libraries(Game PUBLIC
+add_library(COMMS ${SOURCES} ${HEADERS})
+target_link_libraries(COMMS PUBLIC
     Qt5::Widgets
     Qt5::Core
     Qt5::Gui
-    COMMS
-    VisualsLib
+
 )
 
-target_include_directories(Game PUBLIC include)
-
+target_include_directories(COMMS PUBLIC include)
 
 # add_subdirectory(demo)
 # add_subdirectory(test)
